@@ -43,7 +43,7 @@ jobs:
       - name: Generate summary with Gemini (requires repository secret)
         if: ${{ env.GEMINI_API_KEY != '' }}
         env:
-          GEMINI_MODEL: gemini-2.5-flash
+          GEMINI_MODEL: gemini-3.5-flash-lite
         run: uv run python src/main.py --mode ai
 
       - name: Generate clearly labeled demonstration (no API key)
