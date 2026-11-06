@@ -88,7 +88,7 @@ def summarize_with_gemini(article: str, api_key: str, model: str) -> dict:
         method="POST",
     )
     try:
-        with urlopen(request, timeout=60) as response:
+        with urlopen(request, timeout=180) as response:
             raw = json.load(response)
     except HTTPError as exc:
         # 不記錄 API Key 或完整敏感 request。
