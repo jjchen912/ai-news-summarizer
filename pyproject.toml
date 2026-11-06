@@ -1,0 +1,9 @@
+[project]
+name = "ai-news-summarizer"
+version = "1.0.0"
+description = "繁體中文 AI 新聞摘要與重點整理：Gemini JSON 結構化輸出、uv、GitHub Pages"
+requires-python = ">=3.11"
+dependencies = []
+
+[tool.uv]
+package = false
