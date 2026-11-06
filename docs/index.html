@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Python + Gemini + uv + GitHub Actions 的 AI 新聞摘要期末專案" />
+  <title>NewsLens — AI 新聞摘要實驗室</title>
+  <style>
+    :root{font-family:Inter,"Noto Sans TC",system-ui,-apple-system,sans-serif;color:#17243a;background:#f6f8fc;font-synthesis:none}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0}a{color:inherit}
+    .nav{display:flex;justify-content:space-between;align-items:center;gap:14px;max-width:1130px;margin:auto;padding:25px 25px}
+    .brand{font-weight:900;font-size:20px;letter-spacing:-.8px}.brand span{color:#3975ef}
+    nav{display:flex;flex-wrap:wrap;gap:24px;font-size:13px;color:#58667b}nav a{text-decoration:none}nav a:hover{color:#3975ef}
+    .hero{max-width:1130px;margin:15px auto 18px;padding:70px 58px 66px;border-radius:28px;background:radial-gradient(ellipse at 80% 15%,#345a9b 0%,transparent 34%),linear-gradient(115deg,#0c1735,#152c54 70%,#101d3c);color:white;position:relative;overflow:hidden}
+    .eyebrow{display:inline-block;font-size:12px;font-weight:750;letter-spacing:1.5px;color:#b5d6ff;padding:8px 11px;background:#ffffff16;border:1px solid #ffffff30;border-radius:999px}
+    h1{font-size:clamp(33px,5vw,60px);line-height:1.13;letter-spacing:-2px;margin:25px 0 19px;max-width:680px}
+    .hero p{font-size:16px;color:#d0def5;line-height:1.85;max-width:580px}
+    .hero .chips{display:flex;flex-wrap:wrap;gap:9px;margin-top:26px}.chip{font-size:12px;padding:8px 13px;border-radius:20px;background:#ffffff17;border:1px solid #ffffff1b}
+    main{max-width:1130px;margin:auto;padding:0 14px 70px}.section{padding-top:54px;scroll-margin-top:25px}.section-head{display:flex;justify-content:space-between;align-items:end;gap:20px;margin-bottom:20px}
+    .kicker{color:#326fe6;text-transform:uppercase;font-size:11px;font-weight:850;letter-spacing:2px}.section h2{font-size:29px;margin:7px 0 0;letter-spacing:-.6px}.muted{color:#6b7990;line-height:1.8}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}
+    .card{background:#fff;border:1px solid #e4eaf3;box-shadow:0 8px 30px #152c5408;border-radius:18px;padding:26px;min-width:0}.card h3{font-size:17px;margin:12px 0}.card p{margin:0;color:#697990;line-height:1.8;font-size:14px}
+    .icon{display:grid;place-items:center;width:41px;height:41px;border-radius:12px;background:#eaf1ff;color:#3474ed;font-weight:900}
+    .pill{display:inline-block;border-radius:30px;background:#eaf2ff;color:#2562c8;font-size:12px;padding:7px 12px;font-weight:750}.pill.demo{background:#fff1d4;color:#9a6600}
+    .results{display:grid;grid-template-columns:1.16fr .84fr;gap:15px}.article{white-space:pre-wrap;color:#4a5b72;font-size:14px;line-height:1.9;max-height:500px;overflow:auto}
+    .big-title{font-size:24px;letter-spacing:-.5px;line-height:1.5;margin:14px 0}.summary{line-height:1.95;color:#485973;font-size:15px}.divider{height:1px;background:#e9edf5;margin:22px 0}
+    .keypoint{display:flex;gap:13px;padding:10px 0;color:#45566e;line-height:1.7;font-size:14px}.number{color:#3376ed;background:#ecf3ff;border-radius:8px;min-width:28px;height:28px;display:grid;place-items:center;font-weight:850}
+    .keywords{display:flex;gap:8px;flex-wrap:wrap}.keyword{background:#f0f4fb;padding:8px 10px;border-radius:9px;font-size:12px;color:#4a607f}
+    pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#0c1931;color:#dceafb;padding:20px;border-radius:13px;line-height:1.8;font-size:13px}
+    ol.steps{list-style:none;padding:0;counter-reset:step;margin:0}.steps li{position:relative;padding:0 0 20px 48px;counter-increment:step;color:#5e6d83;line-height:1.8}
+    .steps li:before{content:counter(step);position:absolute;left:0;top:0;border:1px solid #d7e4f8;border-radius:10px;width:31px;height:31px;display:grid;place-items:center;color:#3774dc;font-weight:800;background:#f2f7ff}
+    .steps strong{color:#1d2c48}.two{display:grid;grid-template-columns:1fr 1fr;gap:15px}.footer{border-top:1px solid #e0e7f0;text-align:center;padding:35px 14px;color:#8290a4;font-size:12px}
+    .topline{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.metadata{font-size:12px;color:#8290a4;margin-top:10px;overflow-wrap:anywhere}
+    .notice{padding:14px 18px;border-radius:11px;background:#fff8e9;color:#835d1b;border:1px solid #f8e8c2;font-size:13px;line-height:1.8;margin-bottom:16px}
+    @media(max-width:800px){.hero{margin:0 12px;padding:47px 28px}.nav{padding:20px}.grid,.results,.two{grid-template-columns:1fr}.section{padding-top:40px}.section h2{font-size:25px}}
+  </style>
+</head>
+<body>
+  <header class="nav"><div class="brand">◈ News<span>Lens</span></div><nav><a href="#about">專案介紹</a><a href="#result">執行結果</a><a href="#run">執行方式</a><a href="#ai">AI 使用說明</a></nav></header>
+  <section class="hero"><span class="eyebrow">PYTHON × GEMINI × GITHUB ACTIONS</span><h1>讓繁雜的新聞<br />變成清楚的重點。</h1><p>輸入一篇文字新聞，透過大型語言模型萃取摘要、三項重點與關鍵字；使用 GitHub Actions 將成果發佈到靜態作品網站。</p><div class="chips"><span class="chip">uv 專案管理</span><span class="chip">JSON 結構化輸出</span><span class="chip">自動化部署</span><span class="chip">繁體中文</span></div></section>
+  <main>
+    <section class="section" id="about"><div class="section-head"><div><div class="kicker">01 / About this project</div><h2>做了什麼？</h2></div></div>
+      <div class="grid"><article class="card"><div class="icon">01</div><h3>讀取新聞</h3><p>從 data/news.txt 讀取新聞文字。範例是自行撰寫的虛構校園消息，避免引用不明資料。</p></article><article class="card"><div class="icon">02</div><h3>AI 生成摘要</h3><p>透過 Python 呼叫 Gemini REST API，要求輸出固定 JSON 格式，再驗證欄位完整性。</p></article><article class="card"><div class="icon">03</div><h3>展示與自動部署</h3><p>Actions 執行單元測試與摘要流程，最後自動部署 GitHub Pages 展示成果。</p></article></div>
+    </section>
+    <section class="section" id="result"><div class="section-head"><div><div class="kicker">02 / Output showcase</div><h2>執行結果</h2></div><span id="mode-badge" class="pill demo">載入中</span></div>
+      <div id="demo-notice" class="notice" hidden>這是人工撰寫的示範摘要，尚未使用 Gemini API。請到 GitHub 專案設定 GEMINI_API_KEY Secret 並重新執行 Actions，才能顯示真正的 AI 生成結果。</div>
+      <div class="results"><article class="card"><div class="kicker">SOURCE DOCUMENT</div><h3>輸入新聞原文</h3><div id="source-article" class="article">正在讀取…</div></article>
+        <article class="card"><div class="topline"><span class="pill" id="summary-label">SUMMARY PREVIEW</span><span id="category" class="muted" style="font-size:12px"></span></div><h3 class="big-title" id="headline">正在讀取結果…</h3><p class="summary" id="summary"></p><div class="divider"></div><h3>三大重點</h3><div id="keypoints"></div><div class="divider"></div><h3>關鍵字</h3><div id="keywords" class="keywords"></div><p id="meta" class="metadata"></p></article>
+      </div>
+    </section>
+    <section class="section" id="run"><div class="section-head"><div><div class="kicker">03 / How to run</div><h2>怎麼執行？</h2></div></div>
+      <div class="two"><div class="card"><h3>本機執行（Windows PowerShell）</h3><ol class="steps"><li><strong>安裝 uv</strong>，使用官方安裝指令。</li><li><strong>取得 Gemini API Key</strong>，建立本機 .env（不加入 Git）。</li><li><strong>安裝並執行</strong>以下命令，輸出至 docs/result.json。</li></ol><pre>uv sync
+uv run python src/main.py --mode ai
+uv run python -m http.server 8000 --directory docs</pre><p>在瀏覽器開啟 http://localhost:8000</p></div>
+      <div class="card"><h3>GitHub Actions 自動部署</h3><ol class="steps"><li><strong>推送到 main 分支</strong>或手動執行 workflow_dispatch。</li><li><strong>安裝 uv、執行測試</strong>，並使用 Secret 呼叫 Gemini API。</li><li><strong>上傳網站檔案</strong>到 Pages Artifact，部署至 github-pages 環境。</li></ol><p>設定 Repository → Settings → Pages → Source → GitHub Actions。金鑰放在 Repository secrets，不會公開到網站。</p></div></div>
+    </section>
+    <section class="section" id="ai"><div class="section-head"><div><div class="kicker">04 / AI disclosure</div><h2>AI 使用說明</h2></div></div><div class="two">
+      <div class="card"><h3>使用了哪些工具？</h3><p><strong>Gemini API：</strong>在執行階段對新聞進行繁體中文摘要及 JSON 結構化輸出。</p><p style="margin-top:12px"><strong>ChatGPT：</strong>協助規劃初版 Python 程式、網站版型、測試與 README；程式與部署流程需由提交者自行實測及審查。</p></div>
+      <div class="card"><h3>自己做了哪些事？</h3><p>專案目前包含欄位格式檢查、三項重點數量驗證、API 金鑰保護、單元測試、示範模式與 Pages 自動部署。提交前應由作者親自運行測試、確認 GitHub Actions 綠燈，並在 README 的「個人驗證紀錄」如實填入實際操作、修改與觀察。</p></div></div>
+    </section>
+  </main>
+  <footer class="footer">NewsLens · AI 新聞摘要系統 · 課程作品展示｜範例文本為虛構，不代表真實新聞</footer>
+  <script>
+    async function loadSummary(){
+      try{
+        const response=await fetch('./result.json',{cache:'no-store'});
+        if(!response.ok)throw new Error('HTTP '+response.status);
+        const data=await response.json();const r=data.result;
+        document.getElementById('mode-badge').textContent=data.mode_label;
+        document.getElementById('summary-label').textContent=data.mode==='ai'?'AI SUMMARY':'DEMO SUMMARY';
+        document.getElementById('mode-badge').className='pill'+(data.mode==='demo'?' demo':'');
+        document.getElementById('demo-notice').hidden=data.mode!=='demo';
+        document.getElementById('source-article').textContent=data.article;
+        document.getElementById('headline').textContent=r.headline;
+        document.getElementById('summary').textContent=r.summary;
+        document.getElementById('category').textContent=r.category;
+        document.getElementById('keypoints').replaceChildren(...r.key_points.map((point,i)=>{
+          const row=document.createElement('div');row.className='keypoint';
+          const number=document.createElement('span');number.className='number';number.textContent=String(i+1).padStart(2,'0');
+          const text=document.createElement('span');text.textContent=point;row.append(number,text);return row;
+        }));
+        document.getElementById('keywords').replaceChildren(...r.keywords.map(keyword=>{
+          const item=document.createElement('span');item.className='keyword';item.textContent='# '+keyword;return item;
+        }));
+        document.getElementById('meta').textContent=`模式：${data.mode_label} · 模型：${data.model} · 更新：${new Date(data.generated_at).toLocaleString('zh-TW',{timeZone:'Asia/Taipei'})}`;
+      }catch(error){
+        document.getElementById('headline').textContent='無法載入摘要結果';
+        document.getElementById('summary').textContent='請先執行 uv run python src/main.py --mode demo，並使用本機 HTTP Server 開啟網站。錯誤：'+error.message;
+      }
+    }
+    loadSummary();
+  </script>
+</body>
+</html>
